@@ -15,7 +15,7 @@ type DiceRollRequest struct {
 	BetValue int     `form:"value" binding:"omitempty,min=1,max=6"`
 }
 
-func (s *Server) handleDiceRoll(c *gin.Context) {
+func (s *App) handleDiceRoll(c *gin.Context) {
 	start := time.Now()
 	log.Printf("[DICE] Request started: method=%s path=%s", c.Request.Method, c.Request.URL.Path)
 

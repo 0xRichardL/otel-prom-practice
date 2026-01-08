@@ -15,7 +15,7 @@ type RouletteSpinRequest struct {
 	BetValue int     `form:"value" binding:"omitempty,min=0,max=36"`
 }
 
-func (s *Server) handleRouletteSpin(c *gin.Context) {
+func (s *App) handleRouletteSpin(c *gin.Context) {
 	start := time.Now()
 	log.Printf("[ROULETTE] Request started: method=%s path=%s", c.Request.Method, c.Request.URL.Path)
 

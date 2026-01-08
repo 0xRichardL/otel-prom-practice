@@ -13,7 +13,7 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
-func (s *Server) respondError(c *gin.Context, message string, code int) {
+func (s *App) respondError(c *gin.Context, message string, code int) {
 	err := ErrorResponse{
 		Error:   http.StatusText(code),
 		Code:    code,

@@ -10,21 +10,21 @@ import (
 	services "github.com/0xRichardL/otel-prom-practice/game/internal/services"
 )
 
-type Server struct {
+type App struct {
 	dice     *services.Dice
 	roulette *services.Roulette
 	router   *gin.Engine
 }
 
-func NewServer(dice *services.Dice, roulette *services.Roulette) *Server {
-	return &Server{
+func NewApp(dice *services.Dice, roulette *services.Roulette) *App {
+	return &App{
 		dice:     dice,
 		roulette: roulette,
 	}
 }
 
 // SetupRouter configures all HTTP routes and middleware
-func (s *Server) SetupRouter() *gin.Engine {
+func (s *App) SetupRouter() *gin.Engine {
 	// Set Gin mode
 	gin.SetMode(gin.ReleaseMode)
 
@@ -45,7 +45,7 @@ func (s *Server) SetupRouter() *gin.Engine {
 }
 
 // loggingMiddleware logs request details
-func (s *Server) loggingMiddleware() gin.HandlerFunc {
+func (s *App) loggingMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		path := c.Request.URL.Path
@@ -59,7 +59,7 @@ func (s *Server) loggingMiddleware() gin.HandlerFunc {
 	}
 }
 
-func (s *Server) handleRoot(c *gin.Context) {
+func (s *App) handleRoot(c *gin.Context) {
 	response := gin.H{
 		"service":   "game-service",
 		"version":   "1.0.0",
@@ -74,7 +74,7 @@ func (s *Server) handleRoot(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-func (s *Server) handleHealth(c *gin.Context) {
+func (s *App) handleHealth(c *gin.Context) {
 	response := gin.H{
 		"status": "healthy",
 		"time":   time.Now().Format(time.RFC3339),
