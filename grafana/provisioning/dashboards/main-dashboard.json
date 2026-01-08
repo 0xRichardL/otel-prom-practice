@@ -1,0 +1,32 @@
+{
+  "title": "Main Dashboard",
+  "uid": "main-dashboard",
+  "templating": {
+    "list": [
+      {
+        "type": "query",
+        "name": "environment",
+        "label": "Environment",
+        "datasource": "Prometheus",
+        "query": "label_values(environment)",
+        "multi": false,
+        "includeAll": true,
+        "allValue": ".*",
+        "refresh": 1,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "targets": [
+        {
+          "expr": "up{environment=~\"$environment\"}"
+        }
+      ]
+    }
+  ]
+}
