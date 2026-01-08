@@ -36,6 +36,12 @@ services:
       - ./grafana/grafana.ini:/etc/grafana/grafana.ini
     restart: always
 
+  game:
+    build:
+      context: ./game
+    ports:
+      - "8080:8080"
+
 volumes:
   prometheus_data: {}
   grafana_data: {}
