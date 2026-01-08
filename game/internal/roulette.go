@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/0xRichardL/otel-prom-practice/game/internal/errors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,7 +22,7 @@ func (s *App) handleRouletteSpin(c *gin.Context) {
 
 	var req RouletteSpinRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		s.respondError(c, err.Error(), http.StatusBadRequest)
+		errors.RespondError(c, err)
 		return
 	}
 
@@ -35,7 +36,7 @@ func (s *App) handleRouletteSpin(c *gin.Context) {
 	result, err := s.roulette.Spin(req.Bet, req.BetType, value)
 	if err != nil {
 		log.Printf("[ROULETTE] Error: %v", err)
-		s.respondError(c, err.Error(), http.StatusBadRequest)
+		errors.RespondError(c, err)
 		return
 	}
 

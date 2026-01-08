@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/0xRichardL/otel-prom-practice/game/internal"
+	"github.com/0xRichardL/otel-prom-practice/game/internal/metrics"
 	"github.com/0xRichardL/otel-prom-practice/game/internal/services"
 )
 
@@ -25,7 +26,7 @@ func run() error {
 	defer stop()
 
 	otelConfig := &OtelConfig{
-		CollectorEndpoint: "http://localhost:4318",
+		CollectorEndpoint: "otel-collector:4318",
 	}
 	otelShutdown, err := otelConfig.Setup(ctx)
 	if err != nil {
@@ -36,14 +37,20 @@ func run() error {
 		err = errors.Join(err, otelShutdown(context.Background()))
 	}()
 
+	// Initialize metrics
+	metrics, err := metrics.NewAppMetrics()
+	if err != nil {
+		return fmt.Errorf("failed to initialize metrics: %v", err)
+	}
+
 	// Setup server with Gin router
-	app := internal.NewApp(services.NewDice(), services.NewRoulette())
+	app := internal.NewApp(services.NewDice(), services.NewRoulette(), metrics)
 	router := app.SetupRouter()
 
 	addr := ":8080"
 	srv := &http.Server{
 		Addr:    addr,
-		Handler: router,
+		Handler: metrics.WrapHandler(router),
 	}
 
 	srvErr := make(chan error, 1)

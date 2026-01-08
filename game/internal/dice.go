@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/0xRichardL/otel-prom-practice/game/internal/errors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,7 +22,7 @@ func (s *App) handleDiceRoll(c *gin.Context) {
 
 	var req DiceRollRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		s.respondError(c, err.Error(), http.StatusBadRequest)
+		errors.RespondError(c, err)
 		return
 	}
 
@@ -29,13 +30,16 @@ func (s *App) handleDiceRoll(c *gin.Context) {
 	result, err := s.dice.Roll(req.Bet, req.BetType, req.BetValue)
 	if err != nil {
 		log.Printf("[DICE] Error: %v", err)
-		s.respondError(c, err.Error(), http.StatusBadRequest)
+		errors.RespondError(c, err)
 		return
 	}
 
 	duration := time.Since(start)
 	log.Printf("[DICE] Request completed: bet=%.2f type=%s result=%d won=%t payout=%.2f duration=%v",
 		req.Bet, req.BetType, result.Roll, result.Won, result.Payout, duration)
+
+	// Record the dice roll metric
+	s.metrics.RecordDiceRoll(c.Request.Context())
 
 	c.JSON(http.StatusOK, result)
 }

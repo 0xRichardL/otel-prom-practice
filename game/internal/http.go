@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/0xRichardL/otel-prom-practice/game/internal/metrics"
 	services "github.com/0xRichardL/otel-prom-practice/game/internal/services"
 )
 
@@ -14,12 +15,14 @@ type App struct {
 	dice     *services.Dice
 	roulette *services.Roulette
 	router   *gin.Engine
+	metrics  *metrics.AppMetrics
 }
 
-func NewApp(dice *services.Dice, roulette *services.Roulette) *App {
+func NewApp(dice *services.Dice, roulette *services.Roulette, metrics *metrics.AppMetrics) *App {
 	return &App{
 		dice:     dice,
 		roulette: roulette,
+		metrics:  metrics,
 	}
 }
 

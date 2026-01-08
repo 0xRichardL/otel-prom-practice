@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
+
+	"github.com/0xRichardL/otel-prom-practice/game/internal/errors"
 )
 
 type Dice struct {
@@ -31,7 +33,18 @@ func (*Dice) Roll(bet float64, betType string, betValue int) (*DiceResult, error
 	time.Sleep(time.Millisecond * time.Duration(10+rand.Intn(40)))
 
 	if bet <= 0 {
-		return nil, fmt.Errorf("bet must be greater than 0")
+		return nil, errors.NewApplicationError(
+			"bet must be greater than 0",
+			errors.AppErrorTypeValidation,
+		)
+	}
+
+	// Randomly return error
+	if rand.Float64() < 0.05 {
+		return nil, errors.NewApplicationError(
+			"random error occurred during dice roll",
+			errors.AppErrorTypeInternal,
+		)
 	}
 
 	// Roll the dice (1-6)
@@ -49,7 +62,10 @@ func (*Dice) Roll(bet float64, betType string, betValue int) (*DiceResult, error
 	switch betType {
 	case "single":
 		if betValue < 1 || betValue > 6 {
-			return nil, fmt.Errorf("for 'single' bet, value must be between 1 and 6")
+			return nil, errors.NewApplicationError(
+				"for 'single' bet, value must be between 1 and 6",
+				errors.AppErrorTypeValidation,
+			)
 		}
 		result.Won = roll == betValue
 		result.Multiplier = 6.0 // 6x payout for single number
@@ -73,7 +89,10 @@ func (*Dice) Roll(bet float64, betType string, betValue int) (*DiceResult, error
 		result.Multiplier = 2.0
 
 	default:
-		return nil, fmt.Errorf("invalid bet type: %s (valid types: single, odd, even, high, low)", betType)
+		return nil, errors.NewApplicationError(
+			fmt.Sprintf("invalid bet type: %s (valid types: single, odd, even, high, low)", betType),
+			errors.AppErrorTypeValidation,
+		)
 	}
 
 	// Calculate payout

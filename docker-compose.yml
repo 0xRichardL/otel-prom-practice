@@ -10,6 +10,8 @@ services:
       - "4318:4318"   # OTLP HTTP receiver
       - "9464:9464"   # Prometheus metrics receiver
     restart: unless-stopped
+    networks:
+      - default
 
   prometheus:
     image: prom/prometheus:latest
@@ -23,6 +25,8 @@ services:
     ports:
       - 9090:9090
     restart: always
+    networks:
+      - default
 
   grafana:
     image: grafana/grafana:latest
@@ -35,13 +39,23 @@ services:
       - ./grafana/provisioning/:/etc/grafana/provisioning/
       - ./grafana/grafana.ini:/etc/grafana/grafana.ini
     restart: always
+    networks:
+      - default
 
   game:
     build:
       context: ./game
     ports:
       - "8080:8080"
+    depends_on:
+      - otel-collector
+    networks:
+      - default
 
 volumes:
   prometheus_data: {}
   grafana_data: {}
+
+networks:
+  default:
+    driver: bridge
