@@ -42,6 +42,17 @@ services:
     networks:
       - default
 
+  tempo:
+    image: grafana/tempo:latest
+    ports:
+      - "3200:3200"
+    volumes:
+      - ./tempo/:/etc/tempo/
+      - tempo_data:/var/tempo
+    command: ["-config.file=/etc/tempo/config.yaml"]
+    networks:
+      - default
+
   game:
     build:
       context: ./game
@@ -55,6 +66,7 @@ services:
 volumes:
   prometheus_data: {}
   grafana_data: {}
+  tempo_data: {}
 
 networks:
   default:

@@ -1,0 +1,59 @@
+# Server configuration. *Required*
+# Basic HTTP server settings for Tempo API and query endpoints
+server:
+  http_listen_port: 3200
+  log_level: info
+
+# OTLP receiver configuration. *Required*
+# Receives trace data from OpenTelemetry collector via gRPC
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 'tempo:4317'
+
+# Storage configuration. *Required*
+# Defines where and how traces are stored (using local filesystem)
+storage:
+  trace:
+    backend: local # backend configuration to use
+    wal:
+      path: /var/tempo/wal # where to store the wal locally
+    local:
+      path: /var/tempo/blocks
+
+# Query frontend configuration (optional)
+# Sets performance SLOs for trace queries - controls timeout and throughput limits
+query_frontend:
+  search:
+    duration_slo: 5s
+    throughput_bytes_slo: 1.073741824e+09
+    metadata_slo:
+      duration_slo: 5s
+      throughput_bytes_slo: 1.073741824e+09
+  trace_by_id:
+    duration_slo: 5s
+
+# Metrics generator (optional)
+# Generates RED metrics (Rate/Errors/Duration) from traces and sends to Prometheus
+metrics_generator:
+  registry:
+    external_labels:
+      source: tempo
+      cluster: docker-compose
+  storage:
+    path: /var/tempo/generator/wal
+    remote_write:
+      - url: http://prometheus:9090/api/v1/write
+        send_exemplars: true
+  traces_storage:
+    path: /var/tempo/generator/traces
+
+# Global overrides (optional)
+# Enables metrics generator processors: service graphs, span metrics, and native histograms
+overrides:
+  defaults:
+    metrics_generator:
+      processors: [service-graphs, span-metrics, local-blocks] # enables metrics generator
+      generate_native_histograms: both

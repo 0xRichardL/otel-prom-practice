@@ -1,4 +1,4 @@
-.PHONY: up down
+.PHONY: up down clean
 
 export COMPOSE_PARALLEL_LIMIT=4
 
@@ -7,3 +7,6 @@ up:
 
 down:
 	docker-compose down
+
+clean:
+	docker-compose down -v --rmi all --remove-orphans
